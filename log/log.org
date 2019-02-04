@@ -1,0 +1,13 @@
+#+TITLE: Siftor the Regular Expr Engine
+#+AUTHOR: Comcx
+
+
+* TODO [0%] Siftor
+** NEXT Build little parser in /Idris/
+** TODO Build Finite automata
+
+
+
+
+
+
