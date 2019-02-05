@@ -34,18 +34,13 @@ matchPart e s  b = case e of
                 (False, _) => (b, s)
                  
   
-{-
+
 match : RegExpr -> String -> Bool
-match e s = case e of
-  Empty    => False
-  Unit c   => if strHead s == c then True else False
-  Pack ss  => if trim s == ss then True else False
-  Plus a b => match a s || match b s
-  Mult a b => case matchPart e s False of
-                (True, ss) => True
-                (False, _) => False
-  Star x   => case match
--}
+match e s = case matchPart e s False of
+  (True, ss) => True
+  (False, _) => False
+
+
 
 
 

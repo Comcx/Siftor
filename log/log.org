@@ -2,12 +2,16 @@
 #+AUTHOR: Comcx
 
 
-* TODO [66%] Siftor
+* TODO [50%] Siftor
 ** DONE Build little parser in /Idris/
    <2019-02-05 Tue>
    Finished basic(very small) toy parser, but it's enough.
 ** NEXT Build Finite automata
 ** DONE Build Analysis engine directly!<2019-02-05 Tue>
+*** DONE *match* function finished
+
+** NEXT Combining Parser with engine
+
 
 
 
