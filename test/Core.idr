@@ -26,8 +26,11 @@ Monoid (Parser a) where
   neutral = MKParser $ \cs => []
 
 
---Alternative Parser where
-    
+Alternative Parser where
+  empty = neutral
+  p <|> q = MKParser $ \cs => case parse (p <+> q) cs of
+    []        => []
+    (x :: xs) => [x]
 
 Monad Parser where
   p >>= f = MKParser $ \cs => 
@@ -45,11 +48,6 @@ satisfy p = do
   c <- item
   if p c then pure c else neutral
 
-infixr 7 +++
-(+++) : Parser a -> Parser a -> Parser a
-p +++ q = MKParser $ \cs => case parse (p <+> q) cs of
-  []        => []
-  (x :: xs) => [x]
 
 
 mutual
@@ -60,10 +58,10 @@ mutual
     pure (a :: as)
 
   many : Parser a -> Parser (List a)
-  many p = many1 p +++ pure []
+  many p = many1 p <|> pure []
 
   sepBy : Parser a -> Parser b -> Parser (List a)
-  sepBy p sep =  (sepBy1 p sep) +++ pure []
+  sepBy p sep =  (sepBy1 p sep) <|> pure []
 
   sepBy1 : Parser a -> Parser b -> Parser (List a)
   sepBy1 p sep = do 
@@ -84,14 +82,20 @@ string ss = case unpack ss of
     string $ pack cs
     pure $ pack (c :: cs)
 
-space : Parser (List Char)
-space = many $ satisfy isSpace
+space : Parser String
+space = do
+  s <- many $ satisfy isSpace
+  pure (pack s)
 
 token : Parser a -> Parser a
 token p = do 
   a <- p
   space
   pure a
+
+
+
+
 
 
 test : Parser (Char, Char)
