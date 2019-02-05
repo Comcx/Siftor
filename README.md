@@ -1,2 +1,6 @@
 # Siftor
-*Siftor* the Regular Expression Engine in *Idris*
+*Siftor* the toy Regular Expression Engine in *Idris*
+
+  
+
+
