@@ -25,7 +25,6 @@ Semigroup (Parser a) where
 Monoid (Parser a) where
   neutral = MKParser $ \cs => []
 
-
 Alternative Parser where
   empty = neutral
   p <|> q = MKParser $ \cs => case parse (p <+> q) cs of
@@ -96,6 +95,8 @@ token p = do
 
 
 
+run : Parser a -> String -> List (a, String)
+run p = parse (do space; p)
 
 
 test : Parser (Char, Char)
