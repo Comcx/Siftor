@@ -1,6 +1,8 @@
 module Engine
 
 
+%access public export
+
 data RegExpr = Empty
              | Unit Char
              | Pack String

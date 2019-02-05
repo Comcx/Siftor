@@ -1,6 +1,8 @@
 module Core
 
 
+%access public export
+
 Parsc : (a : Type) -> Type
 Parsc a = String -> List (a, String)
 
@@ -47,6 +49,8 @@ satisfy p = do
   c <- item
   if p c then pure c else neutral
 
+oneOf : String -> Parser Char
+oneOf s = satisfy (flip elem $ unpack s)
 
 
 mutual
