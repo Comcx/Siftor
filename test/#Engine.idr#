@@ -1,0 +1,17 @@
+module Engine
+
+
+data RegExpr = Unit String
+             | Plus RegExpr RegExpr
+             | Mult Reg
+
+
+
+
+
+
+
+
+
+
+
