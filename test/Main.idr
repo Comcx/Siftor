@@ -21,16 +21,21 @@ square = do
 
 unit : Parser RegExpr
 unit = do
-  s <- anyChar `except` "|*+"
+  s <- anyChar `except` "|*+_"
   pure $ Unit s
   
 empty : Parser RegExpr
 empty = do 
   char '('; char ')'; pure Empty
+  
+wild : Parser RegExpr
+wild = do
+  char '_'
+  pure Wild
 
 mutual {
 expr : Parser RegExpr
-expr = unit <|> empty <|> square 
+expr = unit <|> empty <|> wild <|> square 
    <|> join <|> mult <|> star <|> optional
   
 join : Parser RegExpr

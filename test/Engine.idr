@@ -4,6 +4,7 @@ module Engine
 %access public export
 
 data RegExpr = Empty
+             | Wild
              | Unit Char
              | Pack String
              | Plus RegExpr RegExpr
@@ -25,6 +26,7 @@ matchPart e "" b = case e of
   
 matchPart e s  b = case e of
   Empty    => (True, s)
+  Wild     => (True, strTail s)
   Unit c   => if strHead s == c then (True, strTail s)
               else (False, s)
   Pack ""  => (True, s)

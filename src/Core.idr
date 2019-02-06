@@ -52,6 +52,12 @@ satisfy p = do
 oneOf : String -> Parser Char
 oneOf s = satisfy (flip elem $ unpack s)
 
+except : Parser Char -> String -> Parser Char
+except pc s = do
+  c <- pc
+  if elem c (unpack s) 
+  then neutral else pure c
+  
 
 mutual
   many1 : Parser a -> Parser (List a)
@@ -71,6 +77,16 @@ mutual
     a  <- p
     as <- many (do sep; p)
     pure (a :: as)
+    
+  chain : Parser a -> Parser (a -> a -> a) -> a -> Parser a
+  chain p op a = (chain1 p op) <|> pure a
+
+  chain1 : Parser a -> Parser (a -> a -> a) -> Parser a
+  chain1 p op = do a <- p; rest a
+    where rest a = (do f <- op
+                       b <- p
+                       rest (f a b))
+                   <|> pure a
 
 
 

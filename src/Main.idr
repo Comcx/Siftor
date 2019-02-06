@@ -14,19 +14,29 @@ main = putStrLn "Testing..."
 square : Parser RegExpr
 square = do
   char '['
-  s <- many1 anyChar
+  s <- many anyChar
   char ']'
   pure $ Pack (pack s)
+  
 
 unit : Parser RegExpr
 unit = do
-  s <- anyChar
+  s <- anyChar `except` "|*+_"
   pure $ Unit s
-
+  
+empty : Parser RegExpr
+empty = do 
+  char '('; char ')'; pure Empty
+  
+wild : Parser RegExpr
+wild = do
+  char '_'
+  pure Wild
 
 mutual {
 expr : Parser RegExpr
-expr = unit <|> square <|> join <|> mult <|> star
+expr = unit <|> empty <|> wild <|> square 
+   <|> join <|> mult <|> star <|> optional
   
 join : Parser RegExpr
 join = do
@@ -52,11 +62,22 @@ mult = do
 star : Parser RegExpr
 star = do
   char '('
+  space
   char '*'
   space
   e <- expr
   char ')'
   pure $ Star e
+
+optional : Parser RegExpr
+optional = do
+  char '('
+  space
+  char '+'
+  space
+  e <- expr
+  char ')'
+  pure $ Plus e Empty
 
 }
 
@@ -68,7 +89,7 @@ star = do
 test : String -> String -> Bool
 test e s = case parse expr e of
   [(r, "")] => match r s
-  [(r, xs)] => False
+  others    => False
 
 
 
