@@ -52,6 +52,12 @@ satisfy p = do
 oneOf : String -> Parser Char
 oneOf s = satisfy (flip elem $ unpack s)
 
+except : Parser Char -> String -> Parser Char
+except pc s = do
+  c <- pc
+  if elem c (unpack s) 
+  then neutral else pure c
+  
 
 mutual
   many1 : Parser a -> Parser (List a)

@@ -14,13 +14,14 @@ main = putStrLn "Testing..."
 square : Parser RegExpr
 square = do
   char '['
-  s <- many1 anyChar
+  s <- many anyChar
   char ']'
   pure $ Pack (pack s)
+  
 
 unit : Parser RegExpr
 unit = do
-  s <- anyChar
+  s <- anyChar `except` "|*+"
   pure $ Unit s
   
 empty : Parser RegExpr
@@ -29,7 +30,8 @@ empty = do
 
 mutual {
 expr : Parser RegExpr
-expr = unit <|> empty <|> square <|> join <|> mult <|> star
+expr = unit <|> empty <|> square 
+   <|> join <|> mult <|> star <|> optional
   
 join : Parser RegExpr
 join = do
@@ -55,11 +57,22 @@ mult = do
 star : Parser RegExpr
 star = do
   char '('
+  space
   char '*'
   space
   e <- expr
   char ')'
   pure $ Star e
+
+optional : Parser RegExpr
+optional = do
+  char '('
+  space
+  char '+'
+  space
+  e <- expr
+  char ')'
+  pure $ Plus e Empty
 
 }
 

@@ -15,7 +15,7 @@ aSpace : Parser Char
 aSpace = satisfy isSpace
 
 anyChar : Parser Char
-anyChar = oneOf "~!@#$%^&_+`s-=:;\"<>,.?/\\"
+anyChar = oneOf "~!@#$%^&_+`s-=:;\"<>,.?/\\*|"
       <|> letter <|> digit <|> aSpace
 
 parens : Parser a -> Parser a

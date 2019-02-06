@@ -24,8 +24,8 @@ matchPart e "" b = case e of
   others           => (b, "")
   
 matchPart e s  b = case e of
-  Empty    => (False, s)
-  Unit c   => if strHead s == c  then (True, strTail s)
+  Empty    => (True, s)
+  Unit c   => if strHead s == c then (True, strTail s)
               else (False, s)
   Pack ""  => (True, s)
   Pack ss  => if strHead ss == strHead s
