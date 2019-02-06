@@ -6,7 +6,7 @@
 
 ```
 -- Match http(s)://xxx.com
-(http(+s)://_.com)
+(http(+s)://(*_).com)
 
 ```
 
