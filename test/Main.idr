@@ -22,11 +22,14 @@ unit : Parser RegExpr
 unit = do
   s <- anyChar
   pure $ Unit s
-
+  
+empty : Parser RegExpr
+empty = do 
+  char '('; char ')'; pure Empty
 
 mutual {
 expr : Parser RegExpr
-expr = unit <|> square <|> join <|> mult <|> star
+expr = unit <|> empty <|> square <|> join <|> mult <|> star
   
 join : Parser RegExpr
 join = do
@@ -68,7 +71,7 @@ star = do
 test : String -> String -> Bool
 test e s = case parse expr e of
   [(r, "")] => match r s
-  [(r, xs)] => False
+  others    => False
 
 
 

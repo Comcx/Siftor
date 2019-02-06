@@ -11,10 +11,18 @@ data RegExpr = Empty
              | Star RegExpr
 
 
+
 matchPart : RegExpr -> String -> Bool -> (Bool, String)
-matchPart Empty "" b = (True, "")
-matchPart (Pack "") "" b = (True, "")
-matchPart e "" b = (b, "")
+
+matchPart e "" b = case e of
+  Empty            => (True, "")
+  Pack ""          => (True, "")
+  Plus Empty y     => (True, "")
+  Plus x Empty     => (True, "")
+  Mult Empty Empty => (True, "")
+  Star Empty       => (True, "") 
+  others           => (b, "")
+  
 matchPart e s  b = case e of
   Empty    => (False, s)
   Unit c   => if strHead s == c  then (True, strTail s)
