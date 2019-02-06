@@ -18,21 +18,24 @@ square = do
   char ']'
   pure $ Pack (pack s)
 
-plain : Parser RegExpr
-plain = do
-  s <- many1 anyChar
-  pure $ Pack (pack s)
+unit : Parser RegExpr
+unit = do
+  s <- anyChar
+  pure $ Unit s
 
 
 mutual {
 expr : Parser RegExpr
-expr = plain <|> square <|> join <|> mult <|> star
+expr = unit <|> square <|> join <|> mult <|> star
   
 join : Parser RegExpr
 join = do
   char '('
-  a <- expr
+  space
   char '|'
+  space
+  a <- expr
+  space
   b <- expr
   char ')'
   pure $ Plus a b
@@ -41,6 +44,7 @@ mult : Parser RegExpr
 mult = do
   char '('
   a <- expr
+  space
   b <- expr
   char ')'
   pure $ Mult a b
@@ -48,8 +52,9 @@ mult = do
 star : Parser RegExpr
 star = do
   char '('
-  e <- expr
   char '*'
+  space
+  e <- expr
   char ')'
   pure $ Star e
 
