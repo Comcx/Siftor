@@ -2,18 +2,21 @@
 #include <iostream>
 
 
-Symbol symbol(SymbolType t, String v) {
+Symbol
+symbol(SymbolType t, String v) {
 
   Symbol ans = {t, v};
   return ans;
 }
 
-Rule rule(Seq l, Seq r) {
+Rule
+rule(Seq l, Seq r) {
 
   Rule ans = {l, r};
   return ans;
 }
-RuleType ruleType(const Rule &r) {
+RuleType
+ruleType(const Rule &r) {
 
   RuleType ans(TURING);
   //1 type?
@@ -36,7 +39,8 @@ RuleType ruleType(const Rule &r) {
 
 
 
-String show(const SymbolType &t) {
+String
+show(const SymbolType &t) {
 
   String ans("NONE");
   switch(t) {
@@ -47,14 +51,16 @@ String show(const SymbolType &t) {
   return ans;
 }
 
-String show(const Symbol &s) {
+String
+show(const Symbol &s) {
 
   return s.type == V_N  ?
     "[" + s.value + "]" :
     s.value;
 }
 
-String show(const Seq &s) {
+String
+show(const Seq &s) {
 
   String ans("");
   for(val &e : s) ans += show(e);
@@ -62,12 +68,14 @@ String show(const Seq &s) {
   return ans;
 }
 
-String show(const Rule &r) {
+String
+show(const Rule &r) {
 
   return show(r.left) + "\t->\t" + show(r.right);
 }
 
-String show(const Grammar &g) {
+String
+show(const Grammar &g) {
 
   String ans("");
   for(val &r : g) ans += show(r) + "\n";
@@ -76,7 +84,8 @@ String show(const Grammar &g) {
 }
 
 
-static Int getLeftMost(const Seq &s) {
+static Int
+getLeftMost(const Seq &s) {
 
   Int ans(0);
   var it(s.begin());
@@ -86,7 +95,8 @@ static Int getLeftMost(const Seq &s) {
   return ans;
 }
 
-static Int getRightMost(const Seq &s) {
+static Int
+getRightMost(const Seq &s) {
 
   Int ans(s.size());
   var it(--s.end());
@@ -96,7 +106,8 @@ static Int getRightMost(const Seq &s) {
   return ans;
 }
 
-Seq infer2l(const Seq &s, const Rule &r) {
+Seq
+infer2l(const Seq &s, const Rule &r) {
 
   Seq ans(s);
   var it = ans.begin();
@@ -111,7 +122,8 @@ Seq infer2l(const Seq &s, const Rule &r) {
   return ans;
 }
 
-Seq infer2r(const Seq &s, const Rule &r) {
+Seq
+infer2r(const Seq &s, const Rule &r) {
 
   Seq ans(s);
   var it = ans.begin();
@@ -128,6 +140,23 @@ Seq infer2r(const Seq &s, const Rule &r) {
 
 
 
+
+static Symbols
+firstOf(const Seqs &ss, const Grammar &g) {
+
+  Symbols ans{symbol(NONE, "")};
+  
+
+  return ans;
+}
+
+
+Symbols
+first(const Seq &s, const Grammar &g) {
+
+  Seqs ss {s};
+  return firstOf(ss, g);
+}
 
 
 

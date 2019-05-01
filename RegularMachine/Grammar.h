@@ -24,10 +24,11 @@ struct Symbol {
   }
 };
 Symbol symbol(SymbolType, String);
-
+def Symbols = Vector<Symbol>;
 
 def Seq = LinkedList<Symbol>;
 Seq seq(String raw);
+def Seqs = Vector<Seq>;
 enum RuleType
 
   { TURING       = 0
@@ -54,11 +55,11 @@ String show(const Rule&);
 String show(const Grammar&);
 
 
-Seq infer2l(const Seq &s, const Rule &r);
-Seq infer2r(const Seq &s, const Rule &r);
-Seq infer(const Grammar &g, const Vector<Int>&);
+Seq infer2l(const Seq&, const Rule&);
+Seq infer2r(const Seq&, const Rule&);
+Seq infer(const Grammar&, const Vector<Int>&);
 
-Symbol first(const Seq &s)
+Symbols first(const Seq&, const Grammar&);
 
 
 
