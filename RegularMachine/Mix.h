@@ -9,7 +9,7 @@
 #define MIX_H
 
 #include <string>
-
+#include <assert.h>
 
 
 #define var     auto
@@ -49,12 +49,13 @@ module Alias {
   def String = std::string;  //can be changed later
 }
 
+/*
 module TLP {
 
   //#define value(x) x::value
   //#define ans(x) x::ans
   
-  /*Integers*/
+  //Integers
   #define mix_Int(i) TLP::Int<i>
   function(Alias::Int i)
   Int {
@@ -69,7 +70,7 @@ module TLP {
     mix_return(Int<value>);
   };
 
-  /*Booleans*/
+  //Booleans
   #define mix_Bool(b) TLP::Bool<b>
   function(Alias::Bool b)
   Bool {
@@ -88,7 +89,7 @@ module TLP {
     mix_return(cons<a, b>);
   };
 
-  /*Lists*/
+  //Lists
   function(Set... xs)
   List {
     mix_return(Nil);
@@ -124,6 +125,7 @@ module TLP {
 
 
 }//end module TLP
+*/
 }//end module Mix
 
 
