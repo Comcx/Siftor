@@ -17,6 +17,12 @@ Int main() {
   RuleType rt = ruleType(r0);
 
   val ss = infer2l(raw, r0);
+  val m = emptyTable(g);
+
+  for(val &e : m) {
+
+    cout << show(e.first) << " " << e.second << endl;
+  }
   
   cout << show(g)  << endl
        << show(ss) << endl;

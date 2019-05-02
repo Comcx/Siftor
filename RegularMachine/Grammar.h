@@ -4,6 +4,7 @@
 #include "Mix.h"
 #include <vector>
 #include <list>
+#include <map>
 
 use module Mix;
 use module Mix::Alias;
@@ -11,6 +12,8 @@ mix<Set t>
 def Vector = std::vector<t>;
 mix<Set t>
 def LinkedList = std::list<t>;
+mix<Set k, Set t>
+  def Map = std::map<k, t>;
 
 enum SymbolType {V_T, V_N, NONE};
 struct Symbol {
@@ -21,6 +24,11 @@ struct Symbol {
 				       
     return this->type  == that.type &&
            this->value == that.value; 
+  }
+  Bool operator<(const Symbol &that) const {
+
+    return this->type == that.type &&
+	   this->value < that.value;
   }
 };
 Symbol symbol(SymbolType, String);
@@ -44,7 +52,7 @@ struct Rule {
 Rule rule(Seq, Seq);
 RuleType ruleType(const Rule&);
 
-
+def Rules   = Vector<Rule>;
 def Grammar = Vector<Rule>;
 
 
@@ -61,6 +69,11 @@ Seq infer(const Grammar&, const Vector<Int>&);
 
 Symbols first(const Seq&, const Grammar&);
 
+enum ThreeLogic
+{ OK, NO, UN };
+
+Map<Symbol, ThreeLogic>
+emptyTable(const Grammar &g);
 
 
 #endif

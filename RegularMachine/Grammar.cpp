@@ -8,13 +8,68 @@ symbol(SymbolType t, String v) {
   Symbol ans = {t, v};
   return ans;
 }
+/*
+Seq
+seq(String raw) {
 
+  Seq ans;
+  Bool literalMode(false);
+  Bool V_NMode(false);
+  Bool V_TMode(false);
+  for(val &c : raw) {
+
+    switch(c) {
+    case '[': V_NMode = true;  break;
+    case ']': V_NMode = false; break;
+    case '<': literalMode = true;  break;
+    case '>': literalMode = false; break;
+    default:  V_TMode = true;
+    }
+    if(V_NMode)
+  }
+}
+*/
 Rule
 rule(Seq l, Seq r) {
 
   Rule ans = {l, r};
   return ans;
 }
+
+static Bool containV_N(const Seq &s) {
+
+  Bool ans(false);
+  for(val &c : s)
+    if(c.type == V_N) {
+      ans = true;
+      break;
+    }
+  return ans;
+}
+
+static Bool containV_T(const Seq &s) {
+
+  Bool ans(false);
+  for(val &c : s)
+    if(c.type == V_T) {
+      ans = true;
+      break;
+    }
+  return ans;
+}
+
+
+static Bool existLeft(const Seq &s, const Grammar &g) {
+
+  for(val &r : g) {
+
+    if(r.left == s) return true;
+  }
+  return false;
+}
+
+
+
 RuleType
 ruleType(const Rule &r) {
 
@@ -140,12 +195,77 @@ infer2r(const Seq &s, const Rule &r) {
 
 
 
+static Rules
+gatherSame(const Seq &s, const Grammar &g) {
+
+  Rules ans {};
+  for(val &r : g) {
+    if(r.left == s) ans.push_back(r);
+  }
+  return ans;
+}
+
+
+//enum ThreeLogic
+//{ OK, NO, UN };
+
+static ThreeLogic
+canBeEmpty(const Seq &s, Map<Symbol, ThreeLogic> &m) {
+
+  ThreeLogic ans(UN);
+  //can be empty directly
+  if(s.size() == 1 && s.front().value == "") ans = OK;
+  //can not be empty
+  else if(containV_T(s)) ans = NO;
+  else {// test
+    Int counter(0);
+    for(val &c : s) {
+      if(m.count(c) > 0 && m[c] == NO) {
+	ans = NO;
+	break;
+      }
+      else if(m.count(c) > 0 && m[c] == OK) {
+	counter++;
+      }
+    }//end for
+    if(counter == s.size()) ans = OK;
+  }
+  return ans;
+}
+
+Map<Symbol, ThreeLogic>
+emptyTable(const Grammar &g) {
+
+  Map<Symbol, ThreeLogic> ans {};
+  Grammar gg(g);
+
+  Int counter(gg.size());
+  while(!gg.empty()) {
+    for(var it = gg.begin(); it!= gg.end();) {
+
+      assert(it->left.size() == 1);
+      val cur = it->left;
+      val res = canBeEmpty(it->right, ans);
+
+      if(res != UN) {
+	it = gg.erase(it); 
+        if(res == OK) ans[cur.front()] = OK;
+        if(res == NO && !existLeft(cur, gg)) ans[cur.front()] = NO;
+      }
+      else ++it;
+    }
+    if(counter == gg.size()) break;
+    else counter = gg.size();
+  }
+
+  return ans;
+}
 
 static Symbols
 firstOf(const Seqs &ss, const Grammar &g) {
 
-  Symbols ans{symbol(NONE, "")};
-  
+  Symbols ans {};
+
 
   return ans;
 }
@@ -157,6 +277,11 @@ first(const Seq &s, const Grammar &g) {
   Seqs ss {s};
   return firstOf(ss, g);
 }
+
+
+
+
+
 
 
 
