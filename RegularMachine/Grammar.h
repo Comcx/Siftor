@@ -20,6 +20,11 @@ struct Symbol {
   
   SymbolType type;
   String value;
+  Symbol(SymbolType t, String s) {
+
+    type = t;
+    value = s;
+  }
   Bool operator==(const Symbol &that) const {
 				       
     return this->type  == that.type &&
@@ -50,6 +55,7 @@ struct Rule {
   Seq right;
 };
 Rule rule(Seq, Seq);
+Rule rule(String);
 RuleType ruleType(const Rule&);
 
 def Rules   = Vector<Rule>;

@@ -8,32 +8,101 @@ symbol(SymbolType t, String v) {
   Symbol ans = {t, v};
   return ans;
 }
-/*
+
 Seq
 seq(String raw) {
 
   Seq ans;
   Bool literalMode(false);
   Bool V_NMode(false);
-  Bool V_TMode(false);
-  for(val &c : raw) {
 
+  var it = raw.begin();
+  String cur("");
+  while(it != raw.end()) {
+
+    Char c(*it);
     switch(c) {
-    case '[': V_NMode = true;  break;
-    case ']': V_NMode = false; break;
-    case '<': literalMode = true;  break;
-    case '>': literalMode = false; break;
-    default:  V_TMode = true;
-    }
-    if(V_NMode)
-  }
+    case '[':
+      V_NMode = true;
+      it++;
+      break;
+    case ']':
+      V_NMode = false;
+      if(cur == "") ans.push_back(symbol(V_T, cur));
+      else ans.push_back(symbol(V_N, cur));
+      it++;
+      cur = "";
+      break;
+    case '<':
+      literalMode = true;
+      it++;
+      break;
+    case '>':
+      literalMode = false;
+      ans.push_back(symbol(V_T, cur));
+      it++;
+      cur = "";
+      break;
+    default:
+      if(V_NMode) {
+	cur += c;
+	it++;
+      }
+      else if(literalMode) {
+	cur += c;
+	it++;
+      }
+      else {
+	ans.push_back(symbol(V_T, String(1, c)));
+	it++;
+      }
+    }//end seitch
+    
+  }//end while
+  return ans;
 }
-*/
+
 Rule
 rule(Seq l, Seq r) {
 
   Rule ans = {l, r};
   return ans;
+}
+
+Rule
+rule(String s) {
+
+  String l("");
+  String r("");
+
+  //-> to blanks
+  for(var it = s.begin(); it != s.end(); it++) {
+
+    if(*it == '-')
+      if(*(++it) == '>') {
+	*it = ' ';
+	*(--it) = ' ';
+      }
+  }
+
+  var it = s.begin();
+  for(;it != s.end() && *it != ' ';
+      it++) {
+    
+    l.push_back(*it);
+  }//end for left
+
+  //skip blanks
+  for(; it != s.end() && *it == ' ';
+      it++);
+
+  for(;it != s.end() && *it != ' ';
+      it++) {
+    
+    r.push_back(*it);
+  }//end for right
+
+  return rule(seq(l), seq(r));
 }
 
 static Bool containV_N(const Seq &s) {
@@ -230,6 +299,12 @@ canBeEmpty(const Seq &s, Map<Symbol, ThreeLogic> &m) {
     }//end for
     if(counter == s.size()) ans = OK;
   }
+  /*
+  std::cout << ">>" << show(s) << "\t" << ans << std::endl;
+  for(val &e : m) {
+
+    std::cout << show(e.first) << " " << e.second << std::endl << std::endl;;
+    }*/
   return ans;
 }
 
@@ -240,7 +315,7 @@ emptyTable(const Grammar &g) {
   Grammar gg(g);
 
   Int counter(gg.size());
-  while(!gg.empty()) {
+  while(!gg.empty()) {//std::cout << show(gg) << std::endl << std::endl;
     for(var it = gg.begin(); it!= gg.end();) {
 
       assert(it->left.size() == 1);
@@ -250,7 +325,10 @@ emptyTable(const Grammar &g) {
       if(res != UN) {
 	it = gg.erase(it); 
         if(res == OK) ans[cur.front()] = OK;
-        if(res == NO && !existLeft(cur, gg)) ans[cur.front()] = NO;
+        if(res == NO && !existLeft(cur, gg))
+	  if(ans.count(cur.front()) > 0 &&
+	     ans[cur.front()] == OK);
+	  else ans[cur.front()] = NO;
       }
       else ++it;
     }
