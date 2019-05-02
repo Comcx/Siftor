@@ -25,11 +25,21 @@ Int main() {
 
   //val ss = infer2l(raw, r0);
   val m = emptyTable(g);
+  val set = first(seq("[A][D]"), g);
+  val fs = follow(symbol(V_N, "D"), g);
 
   for(val &e : m) {
 
     cout << show(e.first) << " " << e.second << endl;
   }
+  for(val &e : set) {
+
+    cout << show(e) << " ";
+  }cout << endl;
+  for(val &e : fs) {
+
+    cout << show(e) << " ";
+  }cout << endl;
   
   cout << show(g)  << endl;
     //   << show(ss) << endl;

@@ -30,6 +30,10 @@ struct Symbol {
     return this->type  == that.type &&
            this->value == that.value; 
   }
+  Bool operator!=(const Symbol &that) const {
+
+    return !((*this) == that);
+  }
   Bool operator<(const Symbol &that) const {
 
     return this->type == that.type &&
@@ -37,6 +41,7 @@ struct Symbol {
   }
 };
 Symbol symbol(SymbolType, String);
+Symbol symbol(String);
 def Symbols = Vector<Symbol>;
 
 def Seq = LinkedList<Symbol>;
@@ -73,7 +78,9 @@ Seq infer2l(const Seq&, const Rule&);
 Seq infer2r(const Seq&, const Rule&);
 Seq infer(const Grammar&, const Vector<Int>&);
 
-Symbols first(const Seq&, const Grammar&);
+Symbols first (const Seq&,    const Grammar&);
+Symbols follow(const Symbol&, const Grammar&);
+Symbols select(const Rule&,   const Grammar&);
 
 enum ThreeLogic
 { OK, NO, UN };

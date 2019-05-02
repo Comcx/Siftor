@@ -1,6 +1,6 @@
 #include "Grammar.h"
 #include <iostream>
-
+#include <algorithm>
 
 Symbol
 symbol(SymbolType t, String v) {
@@ -8,6 +8,12 @@ symbol(SymbolType t, String v) {
   Symbol ans = {t, v};
   return ans;
 }
+Symbol
+symbol(String s) {
+
+  return seq(s).front();
+}
+
 
 Seq
 seq(String raw) {
@@ -180,7 +186,8 @@ show(const Symbol &s) {
 
   return s.type == V_N  ?
     "[" + s.value + "]" :
-    s.value;
+    s.value == "" ?
+    "[]" : s.value;
 }
 
 String
@@ -275,6 +282,34 @@ gatherSame(const Seq &s, const Grammar &g) {
 }
 
 
+mix<Set T> static Vector<T>&
+merge(Vector<T> &v, const T &e) {
+
+  for(val &x : v) {
+    if(e == x) return v;
+  }
+  v.push_back(e);
+  return v;
+}
+
+mix<Set T> static Vector<T>&
+merge(Vector<T> &a, Vector<T> &b) {
+
+  
+  return a;
+}
+
+
+static Vector<Symbol>&
+washEmpty(Vector<Symbol> &v) {
+
+  for(var it = v.begin(); it != v.end();) {
+    if(it->value == "") it = v.erase(it);
+    else ++it;
+  }
+  return v;
+}
+
 //enum ThreeLogic
 //{ OK, NO, UN };
 
@@ -343,7 +378,102 @@ static Symbols
 firstOf(const Seqs &ss, const Grammar &g) {
 
   Symbols ans {};
+  val empty_table = emptyTable(g);
+  Map<Symbol, Bool> ifEmpty {};
+  for(val &e : empty_table) {
+    switch(e.second) {
+    case OK: ifEmpty[e.first] = true;  break;
+    default: ifEmpty[e.first] = false;
+    }
+  }
+  for(val &s : ss) {
 
+    if(s.front().type == V_T) merge(ans, s.front());
+    else {
+      if(s.size() == 1) {//is single V_N
+	val e = s.front();
+        if(e.type == V_T) merge(ans, e);
+	else {
+	  const Seq tar {e};
+	  Rules rules = gatherSame(tar, g);
+	  for(val &r : rules) {//for every related rule
+	    //start from V_T
+	    if(r.right.front().type == V_T
+	       ||
+	       !ifEmpty[r.right.front()]) merge(ans, r.right.front());
+	    else {//start from V_N
+	      Int allEmptyCounter(0);
+	      for(val &c : r.right) {
+		if(c.type == V_T) {
+		  merge(ans, c);
+		  break;//found first
+		}
+		else if(!ifEmpty[c]) {
+		  const Seq tar {c};
+		  Symbols res = first(tar, g);
+		  ans.insert(ans.end(), res.begin(), res.end());
+		  break;//found first
+		}
+		else {//can be empty
+		  
+		  const Seq tar {c};
+		  Symbols res = first(tar, g);
+		  washEmpty(res);
+		  ans.insert(ans.end(), res.begin(), res.end());
+		  allEmptyCounter++;
+		}
+	      }//end for r.right
+	      
+	      if(allEmptyCounter == r.right.size()) merge(ans, symbol(V_T, ""));
+	    }
+	  }//end for rules
+	}
+      }
+      else {//is seq
+
+	val e = s.front();
+	if(e.type == V_T
+	   ||
+	   e.type == V_N &&
+	   ifEmpty.count(e) > 0 &&
+	   !ifEmpty[e]) {
+	  
+	  merge(ans, e);
+	  break;
+	}
+	else {
+	  
+	  Int allEmptyCounter(0);
+	  for(val &c : s) {
+	    if(c.type == V_T) {
+	      merge(ans, c);
+	      break;//found first
+	    }
+	    else if(!ifEmpty[c]) {
+	      const Seq tar {c};
+	      Symbols res = first(tar, g);
+	      ans.insert(ans.end(), res.begin(), res.end());
+	      break;//found first
+	    }
+	    else {//can be empty
+		  
+	      const Seq tar {c};
+	      Symbols res = first(tar, g);
+	      //std::cout << ">> " << show(c) << std::endl;
+	      washEmpty(res);
+	      ans.insert(ans.end(), res.begin(), res.end());
+	      allEmptyCounter++;
+	    }
+	  }//end for s
+	  
+	  if(allEmptyCounter == s.size()) merge(ans, symbol(V_T, ""));
+	    
+	  //underwork! can't firstof(seqs), only symbols
+	 
+        }
+      }//end if size
+    }//end if
+  }//end for ss
 
   return ans;
 }
@@ -355,6 +485,68 @@ first(const Seq &s, const Grammar &g) {
   Seqs ss {s};
   return firstOf(ss, g);
 }
+
+
+Symbols
+follow(const Symbol &s, const Grammar &g) {
+
+  Symbols ans {};
+  val empty_table = emptyTable(g);
+  Map<Symbol, Bool> ifEmpty {};
+  for(val &e : empty_table) {
+    switch(e.second) {
+    case OK: ifEmpty[e.first] = true;  break;
+    default: ifEmpty[e.first] = false;
+    }
+  }
+  
+  for(val &r : g) {
+    Bool found(false);
+    for(var it = r.right.begin(); it != r.right.end(); ++it) {
+
+      if(found) {
+	assert(*it != s);
+	if(ifEmpty[*it]) {
+	  val next = follow(r.left.front(), g);
+	  ans.insert(ans.end(), next.begin(), next.end());
+	}
+	Seq ss;
+	ss.insert(ss.end(), it, r.right.end());
+        var next = first(ss, g);
+	next = washEmpty(next);
+	ans.insert(ans.end(), next.begin(), next.end());
+	found = false;
+      }
+      if(*it == s) {
+	found = true;
+      }
+    }//end for r.right
+    if(found) {
+      //std::cout << show(r.left.front()) << std::endl;
+      if(r.left.front() != symbol(V_N, "S")) {
+        val next = follow(r.left.front(), g);
+        ans.insert(ans.end(), next.begin(), next.end());
+      }
+      else merge(ans, symbol(V_T, "#"));
+    }
+  }//end for g
+  if(s == symbol(V_N, "S")) merge(ans, symbol(V_T, "#"));
+  return ans;
+}
+
+
+
+Symbols
+select(const Rule &r, const Grammar &g) {
+
+  Symbols ans {};
+  
+
+  return ans;
+}
+
+
+
 
 
 
