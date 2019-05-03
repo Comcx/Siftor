@@ -16,7 +16,7 @@ Int main() {
     , rule("[B] -> a[D]")
     , rule("[C] -> [A][D]")
     , rule("[C] -> b")
-    , rule("[D] -> a[S]")
+    , rule("[D] -> a")
     , rule("[D] -> c")
     };
 
@@ -28,19 +28,48 @@ Int main() {
     , rule("[B] -> b")
     , rule("[B] -> d[B]")
     };
+
+  Grammar g2
+    { rule("[S] -> [T][S']")
+    , rule("[S'] -> +[T][S']")
+    , rule("[S'] -> []")
+    , rule("[T] -> [F][T']")
+    , rule("[T'] -> *[F][T']")
+    , rule("[T'] -> []")
+    , rule("[F] -> i")
+    , rule("[F] -> ([S])")
+    };
+
+  Grammar g3
+    { rule("[S] -> [T][S']")
+    , rule("[S'] -> +[T][S']")
+    , rule("[S'] -> -[T][S']")
+    , rule("[S'] -> []")
+    , rule("[T] -> [F][T']")
+    , rule("[T'] -> *[F][T']")
+    , rule("[T'] -> /[F][T']")
+    , rule("[T'] -> []")
+    , rule("[F] -> i")
+    , rule("[F] -> ([S])")
+    };
+  
   //val ss = infer2l(raw, r0);
   //val m = emptyTable(g);
   //val set = first(seq("[S]"), g);
   //val fs = select(rule("[D] -> c"), g);
 
-  val test = isLL1(g0);
-  testGrammar(g0);
-  //val xx = first(seq("[A]p"), g1);
-  //for(val &e : xx)
-  //  std::cout << show(e) << " ";
+  //val test = isLL1(g2);
+  //val ss = follow(symbol("[S']"), g2);
+  testGrammar(g3);
+
+  //cout << "==>" << endl;
+  //for(val &x : ss)
+  //  cout << show(x) << " ";
+  //cout << endl;
+  
   cout << endl;
-  cout << show(g0) << endl
-       << test    << endl;;
+  cout << show(g3) << endl;
+    //   << test     << endl;;
   
   return 0;
 }

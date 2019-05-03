@@ -414,7 +414,12 @@ firstOf(const Seqs &ss, const Grammar &g) {
 	    //start from V_T
 	    if(r.right.front().type == V_T
 	       ||
-	       !ifEmpty[r.right.front()]) merge(ans, r.right.front());
+	       !ifEmpty[r.right.front()]) {
+
+	      Seq sss {r.right.front()};
+	      val res = first(sss, g);
+	      merge(ans, res);
+	    }
 	    else {//start from V_N
 	      Int allEmptyCounter(0);
 	      for(val &c : r.right) {
@@ -453,7 +458,7 @@ firstOf(const Seqs &ss, const Grammar &g) {
 	   e.type == V_N &&
 	   ifEmpty.count(e) > 0 &&
 	   !ifEmpty[e]) {
-	  //std::cout << "hello";
+	  
 	  Seq tar {e};
 	  val firstOfe = first(tar, g);
 	  merge(ans, firstOfe);
@@ -509,7 +514,7 @@ first(const Seq &s, const Grammar &g) {
 
 Symbols
 follow(const Symbol &s, const Grammar &g) {
-
+  //std::cout << show(s) << std::endl;
   Symbols ans {};
   val empty_table = emptyTable(g);
   Map<Symbol, Bool> ifEmpty {};
@@ -543,9 +548,11 @@ follow(const Symbol &s, const Grammar &g) {
 	found = true;
       }
     }//end for r.right
-    if(found) {
+    if(found) {//std::cout << "hello" << show(r) << std::endl;
       //std::cout << show(r.left.front()) << std::endl;
-      if(r.left.front() != symbol(V_N, "S")) {
+      if(//r.left.front() != symbol(V_N, "S") && //CAN NOT SOLVE !!!! STH WRONG :(
+	 r.left.front() != r.right.back()) {
+	
         val next = follow(r.left.front(), g);
 	merge(ans, next);
         //ans.insert(ans.end(), next.begin(), next.end());
@@ -564,7 +571,19 @@ select(const Rule &r, const Grammar &g) {
 
   Symbols ans {};
   var rightFirst = first(r.right, g);
-  if(contain(rightFirst, symbol(V_T, ""))) {
+
+  Bool canBeEmpty(true);
+  for(val &c : r.right) {
+
+    Seq tar {c};
+    val sss = first(tar, g);
+    if(!contain(sss, symbol(V_T, ""))) {
+
+      canBeEmpty = false;
+      break;
+    }
+  }
+  if(canBeEmpty) {
 
     washEmpty(rightFirst);
     ans = merge(rightFirst, follow(r.left.front(), g));
