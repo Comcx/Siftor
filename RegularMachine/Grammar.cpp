@@ -111,6 +111,17 @@ rule(String s) {
   return rule(seq(l), seq(r));
 }
 
+
+mix<Set T> static Bool
+contain(const Vector<T> &v, const T &e) {
+
+  for(val &x : v) {
+
+    if(x == e) return true;
+  }
+  return false;
+}
+
 static Bool containV_N(const Seq &s) {
 
   Bool ans(false);
@@ -293,9 +304,12 @@ merge(Vector<T> &v, const T &e) {
 }
 
 mix<Set T> static Vector<T>&
-merge(Vector<T> &a, Vector<T> &b) {
+merge(Vector<T> &a, const Vector<T> &b) {//can be optimized, but left to do later!
 
-  
+  for(val &e : b) {
+
+    merge(a, e);
+  }
   return a;
 }
 
@@ -411,7 +425,8 @@ firstOf(const Seqs &ss, const Grammar &g) {
 		else if(!ifEmpty[c]) {
 		  const Seq tar {c};
 		  Symbols res = first(tar, g);
-		  ans.insert(ans.end(), res.begin(), res.end());
+		  merge(ans, res);
+		  //ans.insert(ans.end(), res.begin(), res.end());
 		  break;//found first
 		}
 		else {//can be empty
@@ -419,7 +434,8 @@ firstOf(const Seqs &ss, const Grammar &g) {
 		  const Seq tar {c};
 		  Symbols res = first(tar, g);
 		  washEmpty(res);
-		  ans.insert(ans.end(), res.begin(), res.end());
+		  merge(ans, res);
+		  //ans.insert(ans.end(), res.begin(), res.end());
 		  allEmptyCounter++;
 		}
 	      }//end for r.right
@@ -437,8 +453,10 @@ firstOf(const Seqs &ss, const Grammar &g) {
 	   e.type == V_N &&
 	   ifEmpty.count(e) > 0 &&
 	   !ifEmpty[e]) {
-	  
-	  merge(ans, e);
+	  //std::cout << "hello";
+	  Seq tar {e};
+	  val firstOfe = first(tar, g);
+	  merge(ans, firstOfe);
 	  break;
 	}
 	else {
@@ -452,7 +470,8 @@ firstOf(const Seqs &ss, const Grammar &g) {
 	    else if(!ifEmpty[c]) {
 	      const Seq tar {c};
 	      Symbols res = first(tar, g);
-	      ans.insert(ans.end(), res.begin(), res.end());
+	      merge(ans, res);
+	      //ans.insert(ans.end(), res.begin(), res.end());
 	      break;//found first
 	    }
 	    else {//can be empty
@@ -461,7 +480,8 @@ firstOf(const Seqs &ss, const Grammar &g) {
 	      Symbols res = first(tar, g);
 	      //std::cout << ">> " << show(c) << std::endl;
 	      washEmpty(res);
-	      ans.insert(ans.end(), res.begin(), res.end());
+	      merge(ans, res);
+	      //ans.insert(ans.end(), res.begin(), res.end());
 	      allEmptyCounter++;
 	    }
 	  }//end for s
@@ -508,13 +528,15 @@ follow(const Symbol &s, const Grammar &g) {
 	assert(*it != s);
 	if(ifEmpty[*it]) {
 	  val next = follow(r.left.front(), g);
-	  ans.insert(ans.end(), next.begin(), next.end());
+	  merge(ans, next);
+	  //ans.insert(ans.end(), next.begin(), next.end());
 	}
 	Seq ss;
 	ss.insert(ss.end(), it, r.right.end());
         var next = first(ss, g);
 	next = washEmpty(next);
-	ans.insert(ans.end(), next.begin(), next.end());
+	merge(ans, next);
+	//ans.insert(ans.end(), next.begin(), next.end());
 	found = false;
       }
       if(*it == s) {
@@ -525,7 +547,8 @@ follow(const Symbol &s, const Grammar &g) {
       //std::cout << show(r.left.front()) << std::endl;
       if(r.left.front() != symbol(V_N, "S")) {
         val next = follow(r.left.front(), g);
-        ans.insert(ans.end(), next.begin(), next.end());
+	merge(ans, next);
+        //ans.insert(ans.end(), next.begin(), next.end());
       }
       else merge(ans, symbol(V_T, "#"));
     }
@@ -540,7 +563,43 @@ Symbols
 select(const Rule &r, const Grammar &g) {
 
   Symbols ans {};
-  
+  var rightFirst = first(r.right, g);
+  if(contain(rightFirst, symbol(V_T, ""))) {
+
+    washEmpty(rightFirst);
+    ans = merge(rightFirst, follow(r.left.front(), g));
+  }
+  else {
+    ans = rightFirst;
+  }
+
+  return ans;
+}
+
+
+Bool
+isLL1(const Grammar &g) {
+
+  Bool ans(true);
+  Seqs found {};
+  for(val &r : g) {
+
+    if(contain(found, r.left)) continue;
+    else found.push_back(r.left);
+    Rules same = gatherSame(r.left, g);
+
+    Symbols fst {};
+    for(val &r_ : same) {
+
+      val cur = select(r_, g);
+      val len = fst.size();
+      merge(fst, cur);
+      if(fst.size() < len + cur.size()) {
+	ans = false;
+	break;
+      }
+    }
+  }
 
   return ans;
 }
@@ -549,9 +608,20 @@ select(const Rule &r, const Grammar &g) {
 
 
 
+Bool
+testGrammar(const Grammar &g) {
 
+  std::cout << "SELECT:" << std::endl;
+  for(val &r : g) {
 
+    val res = select(r, g);
+    std::cout << show(r) << "\t: ";
+    for(val &e : res)
+      std::cout << show(e) << " ";
+    std::cout << std::endl;
+  }
 
-
+  return isLL1(g);
+}
 
 

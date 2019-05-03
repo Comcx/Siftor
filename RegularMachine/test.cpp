@@ -7,9 +7,7 @@ use module std;
 
 Int main() {
 
-  Rule r0 = rule("[S] -> a[A]");
-  Rule r1 = rule("[S] -> a[S]");
-  Grammar g
+  Grammar g0
     { rule("[S] -> [A][B]")
     , rule("[S] -> b[C]")
     , rule("[A] -> []")
@@ -21,29 +19,29 @@ Int main() {
     , rule("[D] -> a[S]")
     , rule("[D] -> c")
     };
-  RuleType rt = ruleType(r0);
 
+  Grammar g1
+    { rule("[S] -> [A]p")
+    , rule("[S] -> [B]q")
+    , rule("[A] -> a")
+    , rule("[A] -> c[A]")
+    , rule("[B] -> b")
+    , rule("[B] -> d[B]")
+    };
   //val ss = infer2l(raw, r0);
-  val m = emptyTable(g);
-  val set = first(seq("[A][D]"), g);
-  val fs = follow(symbol(V_N, "D"), g);
+  //val m = emptyTable(g);
+  //val set = first(seq("[S]"), g);
+  //val fs = select(rule("[D] -> c"), g);
 
-  for(val &e : m) {
-
-    cout << show(e.first) << " " << e.second << endl;
-  }
-  for(val &e : set) {
-
-    cout << show(e) << " ";
-  }cout << endl;
-  for(val &e : fs) {
-
-    cout << show(e) << " ";
-  }cout << endl;
+  val test = isLL1(g0);
+  testGrammar(g0);
+  //val xx = first(seq("[A]p"), g1);
+  //for(val &e : xx)
+  //  std::cout << show(e) << " ";
+  cout << endl;
+  cout << show(g0) << endl
+       << test    << endl;;
   
-  cout << show(g)  << endl;
-    //   << show(ss) << endl;
-
   return 0;
 }
 

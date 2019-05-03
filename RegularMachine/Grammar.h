@@ -81,6 +81,9 @@ Seq infer(const Grammar&, const Vector<Int>&);
 Symbols first (const Seq&,    const Grammar&);
 Symbols follow(const Symbol&, const Grammar&);
 Symbols select(const Rule&,   const Grammar&);
+Bool isLL1(const Grammar &g);
+
+Bool testGrammar(const Grammar &g);
 
 enum ThreeLogic
 { OK, NO, UN };
