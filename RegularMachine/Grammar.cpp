@@ -324,6 +324,39 @@ washEmpty(Vector<Symbol> &v) {
   return v;
 }
 
+
+
+Symbols getV_Ns(const Grammar &g) {
+
+  Symbols ans {};
+  for(val &r : g) {
+
+    if(!contain(ans, r.left.front()))
+      ans.push_back(r.left.front());
+  }
+  return ans;
+}
+
+Symbols getV_Ts(const Grammar &g) {
+
+  Symbols ans {};
+  for(val &r : g) {
+    var s = r.left;
+    s.insert(s.end(), r.right.begin(), r.right.end());
+    for(val &c : s) {
+
+      if(!contain(ans, c))
+	ans.push_back(c);
+    }
+  }
+  return ans;
+}
+
+
+
+
+
+
 //enum ThreeLogic
 //{ OK, NO, UN };
 
@@ -642,5 +675,102 @@ testGrammar(const Grammar &g) {
 
   return isLL1(g);
 }
+
+
+
+static Map<Symbol, Map<Symbol, Seq>>
+predictTable(const Grammar &g) {
+
+  Map<Symbol, Map<Symbol, Seq>> ans {};
+  Symbols V_Ns = getV_Ns(g);
+  Symbols V_Ts = getV_Ts(g);
+  for(val &r : g) {
+
+    Symbols res = select(r, g);
+    for(val &c : res) {
+
+      ans[r.left.front()][c] = r.right;
+    }
+  }
+  return ans;
+}
+
+
+Bool match(const Seq &raw, const Grammar &g) {
+
+  if(!isLL1(g)) return false;
+  
+  Bool ans(true);
+  Seq s(raw);
+  Stack<Symbol> stk;
+  stk.push(symbol("#"));
+  stk.push(symbol("[S]"));
+  var predict = predictTable(g);
+  /*
+  for(val &m : predict)
+    for(val &n : m.second)
+      std::cout << show(m.first) << " " << show(n.first) << " ==> "
+	        << show(n.second) << std::endl;
+  */
+  
+  while(stk.size() != 1 || stk.top() != symbol("#") ||
+	s.size() != 1  || s.front() != symbol("#")) {
+    
+    if(stk.top().type == V_T) {
+
+      if(stk.top() == s.front()) {
+	stk.pop();
+	s.erase(s.begin());
+      }
+      else {//std::cout << "hello" << show(stk.top()) << std::endl;
+	ans = false;
+	break;
+      }
+    }
+    else if(predict.count(stk.top()) > 0 &&
+            predict[stk.top()].count(s.front()) > 0) {
+      
+      val pre = stk.top();
+      stk.pop();
+      val cur = predict[pre][s.front()];
+      for(var it = cur.rbegin(); it != cur.rend(); ++it) {
+
+	if(*it != symbol("[]")) stk.push(*it);
+	//std::cout << show(*it);
+      }
+      //std::cout << "\t=<>=\t" << show(s) << std::endl;
+    }
+    else {
+      //std::cout << "hello" << show(stk.top()) << std::endl;
+      ans = false;
+      break;
+    }
+    
+  }
+
+  
+  return ans;
+}
+
+
+
+Bool testMatch(const Grammar &g, const Seq &s) {
+
+  Bool ans = match(s, g);
+  
+  std::cout << show(g) << std::endl
+	    << "test(" << "\"" << show(s) << "\"" << ")"
+	    << " ==> " << (ans ? "OK:)" : "NO:(") << std::endl;
+
+  return ans;
+}
+
+
+
+
+
+
+
+
 
 

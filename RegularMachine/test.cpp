@@ -30,27 +30,27 @@ Int main() {
     };
 
   Grammar g2
-    { rule("[S] -> [T][S']")
+    { rule("[S]  -> [T][S']")
     , rule("[S'] -> +[T][S']")
     , rule("[S'] -> []")
-    , rule("[T] -> [F][T']")
+    , rule("[T]  -> [F][T']")
     , rule("[T'] -> *[F][T']")
     , rule("[T'] -> []")
-    , rule("[F] -> i")
-    , rule("[F] -> ([S])")
+    , rule("[F]  -> i")
+    , rule("[F]  -> ([S])")
     };
 
   Grammar g3
-    { rule("[S] -> [T][S']")
+    { rule("[S]  -> [T][S']")
     , rule("[S'] -> +[T][S']")
     , rule("[S'] -> -[T][S']")
     , rule("[S'] -> []")
-    , rule("[T] -> [F][T']")
+    , rule("[T]  -> [F][T']")
     , rule("[T'] -> *[F][T']")
     , rule("[T'] -> /[F][T']")
     , rule("[T'] -> []")
-    , rule("[F] -> i")
-    , rule("[F] -> ([S])")
+    , rule("[F]  -> i")
+    , rule("[F]  -> ([S])")
     };
   
   //val ss = infer2l(raw, r0);
@@ -58,18 +58,17 @@ Int main() {
   //val set = first(seq("[S]"), g);
   //val fs = select(rule("[D] -> c"), g);
 
-  //val test = isLL1(g2);
+  val test = isLL1(g3);
   //val ss = follow(symbol("[S']"), g2);
-  testGrammar(g3);
+  //testGrammar(g3);
 
   //cout << "==>" << endl;
   //for(val &x : ss)
   //  cout << show(x) << " ";
   //cout << endl;
+  testMatch(g3, seq("i+(i+i*i)#"));
   
-  cout << endl;
-  cout << show(g3) << endl;
-    //   << test     << endl;;
+  //cout << show(g3) << endl;
   
   return 0;
 }
