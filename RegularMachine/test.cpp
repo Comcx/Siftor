@@ -1,5 +1,6 @@
 #include "Mix.h"
 #include "Grammar.h"
+#include "Homework.h"
 #include <iostream>
 
 use module std;
@@ -66,6 +67,26 @@ Int main() {
   //for(val &x : ss)
   //  cout << show(x) << " ";
   //cout << endl;
+  
+  Seqs src
+    { seq("i+i#")
+    , seq("i*i#")
+    , seq("i+i*i#")
+    , seq("i+i*(i+i)#")
+      //, seq("i+(i+i*i#")
+    };
+  Seqs raw {};
+  for(val &s : src) {
+
+    Seq temp {};
+    for(var it = s.rbegin(); it != s.rend(); ++it) {
+
+      temp.push_back(*it);
+    }
+    std::cout << show(s) << " => ";
+    start(temp);
+  }
+  
   testMatch(g3, seq("i+(i+i*i)#"));
   
   //cout << show(g3) << endl;
